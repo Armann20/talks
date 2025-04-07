@@ -1,0 +1,7 @@
+**/.bsp
+.bsp
+.clj-kondo
+.lsp
+.metals
+.scala-build
+.vscode
