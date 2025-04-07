@@ -1,7 +1,7 @@
 (println "Generic code example")
 
 (defn log-payment
-  "splits the three-letter prefix from amount string"
+  "Generates the log entry message for a payment"
   [payment]
   (let [currency (str (first payment) (second payment) (nth payment 2))
         amount (Double/parseDouble (reduce str "" (drop 3 payment)))
