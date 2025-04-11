@@ -18,8 +18,10 @@ WHERE active = true
 % The Nokia tune from Gran Vals by Tarrega
 
 \relative c'' {
-  e8 d fis gis cis b d e
-  b a cis e a4
+  \key a \major
+  \time 3/4
+
+  e8 d | fis4 gis | cis,8 b d4 e | b8 a cis4 e | a,2. |
 }
 ```
 
