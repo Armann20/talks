@@ -84,9 +84,51 @@ def updatePerson(name: String, age: Int): Boolean =
   ...
 ```
 
-Different languages provide different lingo to do such things making the feature more or less wieldy. Let's look at how this is achieved in Scala and Clojure.
+Different languages provide different lingo to do such things making the feature more or less wieldy. Let's look at how this is done in Scala and Clojure.
 
-Scala code looks like a text, it's readable ok, but it does not quite resemble a data structure. In fact, the only data structure it resembles is a string of characters, and that is not the most convenient representation to do do operations with. In order to evaluate and\or manipulate it Scala turns it into a tree, where each token in the string is marked and placed appropriately. This is done by the compiler and not exposed to the user. The tree is then traversed and evaluated. This means that what we will be manipulating is not the original string, but a tree representation of it.
+Below is a scala macro that understands prefix expressions. `inline` is used to instruct the compiler to evaluate the expression at compile time. The `prefix` function operates on string context at compile time.
+
+```scala
+// Macros in Scala
+
+object Prefix:
+
+  inline def prefix(inline ctx: StringContext): Int =
+    ${ prefixImpl('ctx) }
+
+  private def calculate(op: String, args: List[Int]): Int =
+    op match
+      case "+" => args.sum
+      case "*" => args.product
+      case "-" => args.reduce(_ - _)
+      case "/" => args.reduce(_ / _)
+      case _   =>
+        throw new IllegalArgumentException(s"Unknown operator: $op")
+
+  private def prefixImpl(ctxExpr: Expr[StringContext])(using Quotes): Expr[Int] =
+    import quotes.reflect.*
+
+    ctxExpr match
+      case '{ StringContext(${ Expr(parts) }*) } =>
+        val tokens = parts.head.split("\\s+").toList
+        tokens match
+          case op :: args =>
+            val ints   = args.map(_.toInt)
+            val result = calculate(op, ints)
+            Expr(result)
+          case Nil        =>
+            report.error("Empty expression")
+            Expr(0)
+      case _                                     =>
+        report.error("Expected a literal string")
+        Expr(0)
+
+...
+
+  println(prefix"+ 2 5 9")
+```
+
+Scala code looks like a text, it's readable ok, but it does not quite resemble a data structure. In fact, the only data structure it resembles is a string of characters, and that is not the most convenient representation to do operations with. In order to evaluate and\or manipulate it Scala turns it into a tree, where each token in the string is marked and placed appropriately. This is done by the compiler and hidden from the user. The tree is then traversed and evaluated. This means that what we will be manipulating is not the original string, but a tree representation of it.
 
 Let's see how we can use macros to introduce simple prefix expressions in our Scala code.
 
